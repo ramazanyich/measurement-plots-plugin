@@ -1,0 +1,24 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<f:entry title="${%Display name}">
+		<f:textbox name="portlet.name" field="name" default="${descriptor.getDisplayName()}" />
+	</f:entry>
+	<!--f:entry title="${%Metric Name}">
+		<f:textbox name="portlet.metricName" field="metricName" default="" />
+	</f:entry-->
+	<f:entry  name="portlet.metricName" title="${%Metric Name}" field="metricName">
+		<select name="portlet.metricName">
+			<j:forEach var="metricname" items="${instance.measurementKeys}">
+				<j:choose>
+					<j:when test="${instance.getMetricName() == metricname}">
+						<option value="${metricname}" selected="true">${metricname}</option>
+					</j:when>
+					<j:otherwise>
+						<option value="${metricname}">${metricname}</option>
+					</j:otherwise>
+				</j:choose>
+			</j:forEach>
+		</select>
+	</f:entry>
+
+</j:jelly>
