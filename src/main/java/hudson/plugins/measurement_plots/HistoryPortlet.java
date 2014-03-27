@@ -110,7 +110,9 @@ public class HistoryPortlet extends DashboardPortlet {
                                 test.add(measurement);
                                 rv.put(TestObjectId.fromString(nextbuild.getDisplayName()), test);
                                 jobName = job.getName();
-                                lastBuildNumber = nextbuild.getNumber();
+                                if(nextbuild.getNumber() > lastBuildNumber){
+                                    lastBuildNumber = nextbuild.getNumber();
+                                }
                                 break;
                             }
                         }

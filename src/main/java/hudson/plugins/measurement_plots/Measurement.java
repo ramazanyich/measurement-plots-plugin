@@ -24,6 +24,10 @@
 
 package hudson.plugins.measurement_plots;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * A measurement. Measurements have names and values.
  * @author krwalker
@@ -34,9 +38,78 @@ public class Measurement {
     private String name;
     private String value;
 
+
+
+
+    private static transient HashMap<String,String> nameToTSDBCounter = new HashMap<String, String>();
+
+    private static transient HashMap<String,String> tags = new HashMap<String, String>();
+
+    private static transient HashMap<String,String> rate = new HashMap<String, String>();
+
+    static {
+        nameToTSDBCounter.put("bulk_rate_report:success","mdm.jobstatistics.successcount");
+        nameToTSDBCounter.put("bulk_rate_report:started","mdm.jobstatistics.startedcount");
+        nameToTSDBCounter.put("bulk_rate_report:failed ","mdm.jobstatistics.failedcount");
+
+        nameToTSDBCounter.put("DB_server_cpu_usage:Idle","");
+        nameToTSDBCounter.put("DB_server_cpu_usage:Nice","");
+        nameToTSDBCounter.put("DB_server_cpu_usage:System","");
+        nameToTSDBCounter.put("DB_server_cpu_usage:User","");
+        nameToTSDBCounter.put("DB_server_cpu_usage:Wait","");
+
+        nameToTSDBCounter.put("MDM_servers_cpu_usage:System","");
+        nameToTSDBCounter.put("MDM_servers_cpu_usage:Wait","");
+        nameToTSDBCounter.put("MDM_servers_cpu_usage:User","");
+        nameToTSDBCounter.put("MDM_servers_cpu_usage:Nice","");
+        nameToTSDBCounter.put("MDM_servers_cpu_usage:Idle","");
+
+        nameToTSDBCounter.put("queue_paging_report:kick  ","hornetq.paging.numberofpages");
+        nameToTSDBCounter.put("queue_paging_report:result","hornetq.paging.numberofpages");
+        nameToTSDBCounter.put("queue_paging_report:notify","hornetq.paging.numberofpages");
+
+        nameToTSDBCounter.put("queue_depth_report:result  ","hornetq.queue.messagecount");
+        nameToTSDBCounter.put("queue_depth_report:notify  ","hornetq.queue.messagecount");
+        nameToTSDBCounter.put("queue_depth_report:kick    ","hornetq.queue.messagecount");
+        nameToTSDBCounter.put("queue_depth_report:subbatch","hornetq.queue.messagecount");
+
+        nameToTSDBCounter.put("logs_report:error  ","mdm.logtracker.errorcount");
+        nameToTSDBCounter.put("logs_report:warning","mdm.logtracker.warncount");
+
+        nameToTSDBCounter.put("SESSION_pool_report:jobengine","jboss.ejb3.poolavailablecount");
+        nameToTSDBCounter.put("SESSION_pool_report:oracle   ","jboss.oracle.availablecount");
+        nameToTSDBCounter.put("SESSION_pool_report:OMADM    ","jboss.ejb3.poolavailablecount");
+        nameToTSDBCounter.put("SESSION_pool_report:dsm      ","jboss.ejb3.poolavailablecount");
+
+        nameToTSDBCounter.put("oracle_connections_blocking_report:duration","jboss.oracle.totalblockingtime");
+
+        tags.put("queue_paging_report:kick  ","queue=KickQueue");
+        tags.put("queue_paging_report:result","queue=ResultQueue");
+        tags.put("queue_paging_report:notify","queue=NotifierQueue");
+
+        tags.put("queue_depth_report:result  ","queue=ResultQueue");
+        tags.put("queue_depth_report:notify  ","queue=NotifierQueue");
+        tags.put("queue_depth_report:kick    ","queue=KickQueue");
+        tags.put("queue_depth_report:subbatch","queue=SubBatchQueue");
+
+        tags.put("SESSION_pool_report:jobengine","name=JobEngineService");
+        tags.put("SESSION_pool_report:oracle   ","name=");
+        tags.put("SESSION_pool_report:OMADM    ","name=Southbound-OMDM");
+        tags.put("SESSION_pool_report:dsm      ","name=DSMService");
+
+        rate.put("bulk_rate_report:success","rate:");
+        rate.put("bulk_rate_report:started","rate:");
+        rate.put("bulk_rate_report:failed ","rate:");
+        rate.put("mdm.logtracker.errorcount","rate:");
+        rate.put("mdm.logtracker.errorcount","rate:");
+        rate.put("oracle_connections_blocking_report:duration","rate:");
+
+
+    }
     Measurement(String name, String value) {
         this.name = name;
         this.value = value;
+
     }
 
     /**
@@ -65,6 +138,27 @@ public class Measurement {
     public StringBuffer getAbsoluteUrl() {
         return getTestAction().getAbsoluteUrl().append(getUrlName() + '/');
     }
+
+    public String getTsdbMetricUrl(){
+        StringBuilder rv = new StringBuilder();
+        String baseURL = "http://172.31.110.9:4242/q";
+        SimpleDateFormat df = new SimpleDateFormat("yyyyy/dd/MM-HH:mm:ss");
+        Date startDate = new Date(getTestAction().getBuild().getStartTimeInMillis());
+        Date endDate = new Date(getTestAction().getBuild().getStartTimeInMillis()+getTestAction().getBuild().getDuration());
+        rv.append(baseURL);
+        rv.append("?");
+
+        rv.append("start=");rv.append(df.format(startDate));
+        rv.append("&end=");rv.append(df.format(endDate));
+        rv.append("&m=avg:");
+        rv.append(rate.get(name) == null?"":rate.get(name));
+        rv.append(nameToTSDBCounter.get(name));
+        rv.append("&o=&yrange=%5B0:%5D&wxh=900x600&smooth=csplines&png&key=top%20center&");
+        rv.append(tags.get(name)==null?"":tags.get(name));
+        return rv.toString();
+    }
+
+
 
     public String getBuildName() {
         return getBuild().getDisplayName();

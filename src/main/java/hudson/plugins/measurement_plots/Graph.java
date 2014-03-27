@@ -146,7 +146,7 @@ class GraphLabel implements Comparable<GraphLabel> {
 
     public String getUrl() {
         if (this.url == null) {
-            this.url = getMeasurement().getTestAction().getAbsoluteTestObjectUrl().toString();
+            this.url = getMeasurement().getTsdbMetricUrl();
         }
         return url;
     }
