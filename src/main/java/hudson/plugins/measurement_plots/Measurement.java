@@ -141,19 +141,19 @@ public class Measurement {
 
     public String getTsdbMetricUrl(){
         StringBuilder rv = new StringBuilder();
-        String baseURL = "http://172.31.110.9:4242/q";
-        SimpleDateFormat df = new SimpleDateFormat("yyyyy/dd/MM-HH:mm:ss");
+        String baseURL = "http://172.31.110.9:4242/";
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
         Date startDate = new Date(getTestAction().getBuild().getStartTimeInMillis());
         Date endDate = new Date(getTestAction().getBuild().getStartTimeInMillis()+getTestAction().getBuild().getDuration());
         rv.append(baseURL);
-        rv.append("?");
+        rv.append("#");
 
         rv.append("start=");rv.append(df.format(startDate));
         rv.append("&end=");rv.append(df.format(endDate));
         rv.append("&m=avg:");
         rv.append(rate.get(name) == null?"":rate.get(name));
         rv.append(nameToTSDBCounter.get(name));
-        rv.append("&o=&yrange=%5B0:%5D&wxh=900x600&smooth=csplines&png&key=top%20center&");
+        rv.append("&o=&yrange=%5B0:%5D&wxh=900x600&smooth=csplines");
         rv.append(tags.get(name)==null?"":tags.get(name));
         return rv.toString();
     }
