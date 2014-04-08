@@ -24,15 +24,119 @@ public class HistoryPortlet extends DashboardPortlet {
 
     private int lastBuildNumber;
 
+    private String tsdbBaseURL;
+
+    private boolean tsdbRateCounter;
+
+    private String tsdbTagName;
+
+    private String tsdbCounterName;
+
+    private static Map<String,String>  metricTsdbBaseURLMap = new HashMap<String, String>();
+
+    private static Map<String,String>  metricTsdbTagMap = new HashMap<String, String>();
+
+    private static Map<String,String>  metricTsdbCounterMap = new HashMap<String, String>();
+
+    private static Map<String,Boolean> metricIsRateMap = new HashMap<String, Boolean>();
+
 
     @DataBoundConstructor
-    public HistoryPortlet(String name, String metricName) {
+    public HistoryPortlet(String name, String metricName,String tsdbBaseURL,Boolean tsdbRateCounter,String tsdbTagName, String tsdbCounterName) {
         super(name);
         this.metricName = metricName;
+        this.tsdbBaseURL = tsdbBaseURL;
+        if(tsdbRateCounter != null) {
+            this.tsdbRateCounter = tsdbRateCounter;
+        }
+        if(tsdbBaseURL != null && metricName != null) {
+            metricTsdbBaseURLMap.put(metricName, tsdbBaseURL);
+        }
+        if(tsdbTagName != null && metricName != null) {
+            metricTsdbTagMap.put(metricName, tsdbTagName);
+        }
+        if(tsdbCounterName != null && metricName != null) {
+            metricTsdbCounterMap.put(metricName, tsdbCounterName);
+        }
+        if(metricName != null) {
+            metricIsRateMap.put(metricName, this.tsdbRateCounter);
+        }
     }
 
     public String getMetricName() {
         return metricName;
+    }
+
+    public String getTsdbBaseURL() {
+        if(tsdbBaseURL != null && metricName != null){
+            metricTsdbBaseURLMap.put(metricName,tsdbBaseURL);
+        }
+        return tsdbBaseURL;
+    }
+
+    public void setTsdbBaseURL(String tsdbBaseURL) {
+        this.tsdbBaseURL = tsdbBaseURL;
+        if(tsdbBaseURL != null && metricName != null) {
+            metricTsdbBaseURLMap.put(metricName, tsdbBaseURL);
+        }
+    }
+
+    public String getTsdbTagName() {
+        if(tsdbTagName != null && metricName != null){
+            metricTsdbTagMap.put(metricName,tsdbTagName);
+        }
+        return tsdbTagName;
+    }
+
+    public void setTsdbTagName(String tsdbTagName) {
+        this.tsdbTagName = tsdbTagName;
+        if(tsdbTagName != null && metricName != null){
+            metricTsdbTagMap.put(metricName,tsdbTagName);
+        }
+    }
+
+    public String getTsdbCounterName() {
+        if(tsdbCounterName != null && metricName != null){
+            metricTsdbCounterMap.put(metricName,tsdbCounterName);
+        }
+        return tsdbCounterName;
+    }
+
+    public void setTsdbCounterName(String tsdbCounterName) {
+        this.tsdbCounterName = tsdbCounterName;
+        if(tsdbCounterName != null && metricName != null){
+            metricTsdbCounterMap.put(metricName,tsdbCounterName);
+        }
+    }
+
+    public boolean isTsdbRateCounter() {
+        if(metricName != null){
+            metricIsRateMap.put(metricName,tsdbRateCounter);
+        }
+        return tsdbRateCounter;
+    }
+
+    public void setTsdbRateCounter(boolean tsdbRateCounter) {
+        if(metricName != null){
+            metricIsRateMap.put(metricName,tsdbRateCounter);
+        }
+        this.tsdbRateCounter = tsdbRateCounter;
+    }
+
+    public static String getTsdbBaseUrlForMetirc(String metricName){
+        return metricTsdbBaseURLMap.get(metricName);
+    }
+
+    public static String getTsdbTagNameForMetirc(String metricName){
+        return metricTsdbTagMap.get(metricName);
+    }
+
+    public static String getTsdbCounterNameForMetirc(String metricName){
+        return metricTsdbCounterMap.get(metricName);
+    }
+
+    public static boolean getTsdbRateForMetirc(String metricName){
+        return metricIsRateMap.get(metricName);
     }
 
     public String getJobName() {
@@ -107,6 +211,10 @@ public class HistoryPortlet extends DashboardPortlet {
 
                             if (measurement.getName().trim().equalsIgnoreCase(metricName.trim())) {
                                 TestObjectMeasurements test = new TestObjectMeasurements();
+                                measurement.setTsdbBaseURL(getTsdbBaseURL());
+                                measurement.setTsdbRateCounter(isTsdbRateCounter());
+                                measurement.setTsdbTagName(getTsdbTagName());
+                                measurement.setTsdbCounterName(getTsdbCounterName());
                                 test.add(measurement);
                                 rv.put(TestObjectId.fromString(nextbuild.getDisplayName()), test);
                                 jobName = job.getName();

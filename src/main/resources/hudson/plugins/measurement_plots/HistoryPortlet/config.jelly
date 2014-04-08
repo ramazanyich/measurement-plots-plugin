@@ -3,10 +3,20 @@
 	<f:entry title="${%Display name}">
 		<f:textbox name="portlet.name" field="name" default="${descriptor.getDisplayName()}" />
 	</f:entry>
-	<!--f:entry title="${%Metric Name}">
-		<f:textbox name="portlet.metricName" field="metricName" default="" />
-	</f:entry-->
+	<f:entry title="${%TSDB Base URL}">
+		<f:textbox name="portlet.tsdbBaseURL" field="tsdbBaseURL" default="" />
+	</f:entry>
+	<f:entry title="${%TSDB Counter Name}">
+		<f:textbox name="portlet.tsdbCounterName" field="tsdbCounterName" default="" />
+	</f:entry>
+	<f:entry title="${%TSDB Counter Tag}">
+		<f:textbox name="portlet.tsdbTagName" field="tsdbTagName" default="" />
+	</f:entry>
+	<f:entry title="${%TSDB Rate Counter}">
+		<f:checkbox name="portlet.tsdbRateCounter" field="tsdbRateCounter" default="" />
+	</f:entry>
 	<f:entry  name="portlet.metricName" title="${%Metric Name}" field="metricName">
+
 		<select name="portlet.metricName">
 			<j:forEach var="metricname" items="${instance.measurementKeys}">
 				<j:choose>

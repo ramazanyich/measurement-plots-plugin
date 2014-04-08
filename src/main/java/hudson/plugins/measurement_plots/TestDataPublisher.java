@@ -49,7 +49,7 @@ public class TestDataPublisher extends hudson.tasks.junit.TestDataPublisher {
         final OutputParser parser = new OutputParser();
         TestResultWalker walker = new TestResultWalker(testResult);
         walker.apply(new OutputOperationApplicator(new TestResultOutputOperation() {
-            @Override
+
             public void apply(hudson.tasks.test.TestResult result, String text) {
                 TestObjectMeasurements testObjectMeasurements = parser.parse(text);
                 if (!testObjectMeasurements.isEmpty()) {

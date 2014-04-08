@@ -26,7 +26,6 @@ package hudson.plugins.measurement_plots;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 /**
  * A measurement. Measurements have names and values.
@@ -35,20 +34,25 @@ import java.util.HashMap;
 public class Measurement {
 
     transient private TestAction testAction;
+    transient private String tsdbBaseURL;
+    transient private String tsdbCounterName;
+    transient private String tsdbTagName;
+
+    transient private boolean tsdbRateCounter;
     private String name;
     private String value;
 
 
 
 
-    private static transient HashMap<String,String> nameToTSDBCounter = new HashMap<String, String>();
+   // private static transient HashMap<String,String> nameToTSDBCounter = new HashMap<String, String>();
 
-    private static transient HashMap<String,String> tags = new HashMap<String, String>();
+  //  private static transient HashMap<String,String> tags = new HashMap<String, String>();
 
-    private static transient HashMap<String,String> rate = new HashMap<String, String>();
+  //  private static transient HashMap<String,String> rate = new HashMap<String, String>();
 
     static {
-        nameToTSDBCounter.put("bulk_rate_report:success","mdm.jobstatistics.successcount");
+      /*  nameToTSDBCounter.put("bulk_rate_report:success","mdm.jobstatistics.successcount");
         nameToTSDBCounter.put("bulk_rate_report:started","mdm.jobstatistics.startedcount");
         nameToTSDBCounter.put("bulk_rate_report:failed ","mdm.jobstatistics.failedcount");
 
@@ -102,7 +106,7 @@ public class Measurement {
         rate.put("bulk_rate_report:failed ","rate:");
         rate.put("mdm.logtracker.errorcount","rate:");
         rate.put("mdm.logtracker.errorcount","rate:");
-        rate.put("oracle_connections_blocking_report:duration","rate:");
+        rate.put("oracle_connections_blocking_report:duration","rate:");*/
 
 
     }
@@ -123,6 +127,38 @@ public class Measurement {
         return value;
     }
 
+    public String getTsdbBaseURL() {
+        return tsdbBaseURL;
+    }
+
+    public void setTsdbBaseURL(String tsdbBaseURL) {
+        this.tsdbBaseURL = tsdbBaseURL;
+    }
+
+    public String getTsdbCounterName() {
+        return tsdbCounterName;
+    }
+
+    public void setTsdbCounterName(String tsdbCounterName) {
+        this.tsdbCounterName = tsdbCounterName;
+    }
+
+    public String getTsdbTagName() {
+        return tsdbTagName;
+    }
+
+    public void setTsdbTagName(String tsdbTagName) {
+        this.tsdbTagName = tsdbTagName;
+    }
+
+    public boolean isTsdbRateCounter() {
+        return tsdbRateCounter;
+    }
+
+    public void setTsdbRateCounter(boolean tsdbRateCounter) {
+        this.tsdbRateCounter = tsdbRateCounter;
+    }
+
     /**
      * Gets a URL-safe component name.
      */
@@ -141,20 +177,20 @@ public class Measurement {
 
     public String getTsdbMetricUrl(){
         StringBuilder rv = new StringBuilder();
-        String baseURL = "http://172.31.110.9:4242/";
+
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
         Date startDate = new Date(getTestAction().getBuild().getStartTimeInMillis());
         Date endDate = new Date(getTestAction().getBuild().getStartTimeInMillis()+getTestAction().getBuild().getDuration());
-        rv.append(baseURL);
+        rv.append(tsdbBaseURL);
         rv.append("#");
 
         rv.append("start=");rv.append(df.format(startDate));
         rv.append("&end=");rv.append(df.format(endDate));
         rv.append("&m=avg:");
-        rv.append(rate.get(name) == null?"":rate.get(name));
-        rv.append(nameToTSDBCounter.get(name));
+        rv.append(isTsdbRateCounter()?"rate:":"");
+        rv.append(getTsdbCounterName()==null?"":getTsdbCounterName());
         rv.append("&o=&yrange=%5B0:%5D&wxh=900x600&smooth=csplines");
-        rv.append(tags.get(name)==null?"":tags.get(name));
+        rv.append(getTsdbTagName()==null?"":tsdbTagName);
         return rv.toString();
     }
 
@@ -217,6 +253,10 @@ public class Measurement {
                             Measurement otherMeasurement =
                                     measurementAction.getMeasurement(getName());
                             if (otherMeasurement != null) {
+                                otherMeasurement.setTsdbBaseURL(HistoryPortlet.getTsdbBaseUrlForMetirc(this.getName()));
+                                otherMeasurement.setTsdbRateCounter(HistoryPortlet.getTsdbRateForMetirc(this.getName()));
+                                otherMeasurement.setTsdbTagName(HistoryPortlet.getTsdbTagNameForMetirc(this.getName()));
+                                otherMeasurement.setTsdbCounterName(HistoryPortlet.getTsdbCounterNameForMetirc(this.getName()));
                                 return otherMeasurement;
                             }
                         }

@@ -127,7 +127,7 @@ public class TestAction extends hudson.tasks.junit.TestAction {
      * This is the icon that is displayed in the sidebar.
      * This plugin does not currently use the sidebar.
      */
-    @Override
+
     public String getIconFileName() {
         return null; //"measurement-plots.svg";
     }
@@ -136,12 +136,12 @@ public class TestAction extends hudson.tasks.junit.TestAction {
      * This is the text that is displayed in the sidebar.
      * This plugin does not currently use the sidebar.
      */
-    @Override
+
     public String getDisplayName() {
         return null; // "Measurement Plots";
     }
 
-    @Override
+
     public String getUrlName() {
         return "measurementPlots";
     }
